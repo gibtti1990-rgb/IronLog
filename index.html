@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="IronLog">
+<meta name="theme-color" content="#f5f5f0">
+<title>IronLog</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#f5f5f0;font-family:'DM Sans',sans-serif;color:#1a1a1a;overflow:hidden}
+#app{height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;position:relative}
+.screen{display:none;flex-direction:column;height:100%}
+.screen.active{display:flex}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:40px}
+.scroll::-webkit-scrollbar{width:3px}
+.scroll::-webkit-scrollbar-thumb{background:#ddd}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;position:sticky;top:0;z-index:10;border-bottom:1px solid #ebebeb;flex-shrink:0}
+.header-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#1a1a1a}
+.back-btn{background:none;border:1px solid #ddd;color:#666;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px;font-family:'DM Sans',sans-serif}
+.finish-btn{border:none;color:#fff;font-weight:800;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif}
+.icon-btn{background:none;border:1px solid #e0e0e0;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:13px;color:#888;flex-shrink:0}
+
+/* HOME */
+.home-header{padding:28px 20px 12px;background:#fff;border-bottom:1px solid #ebebeb;flex-shrink:0}
+.app-title{font-size:44px;font-family:'Bebas Neue',sans-serif;letter-spacing:5px;color:#1a1a1a}
+.app-title span{color:#FF6B35}
+.app-sub{color:#aaa;font-size:12px;letter-spacing:1px;margin-top:2px}
+
+/* STATS */
+.stats-row{display:flex;gap:8px;padding:12px 16px 12px}
+.stat-card{flex:1;background:#fff;border-radius:12px;padding:12px 8px;text-align:center;border:1px solid #ebebeb}
+.stat-num{font-size:22px;font-weight:800;color:#FF6B35}
+.stat-label{color:#aaa;font-size:11px;margin-top:3px}
+
+/* DAY BADGE */
+.day-badge{margin:0 16px 12px;background:#FFF5F0;border-radius:10px;padding:10px 14px;border:1px solid #FFD4C2;display:flex;align-items:center;justify-content:space-between}
+.day-text{color:#aaa;font-size:12px}
+.day-name{color:#FF6B35;font-weight:700;font-size:13px}
+
+/* WORKOUT CARDS */
+.wo-card{width:100%;background:#fff;border:1px solid #ebebeb;border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:8px;text-align:left}
+.wo-name{font-weight:800;font-size:20px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px}
+.wo-meta{color:#aaa;font-size:12px;margin-top:2px}
+.wo-last{color:#ccc;font-size:11px;margin-top:2px}
+
+/* NAV */
+.nav-row{display:flex;gap:8px;padding:8px 16px 16px}
+.nav-btn{flex:1;background:#fff;border:1px solid #ebebeb;color:#888;border-radius:12px;padding:12px 8px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;align-items:center;gap:4px}
+.nav-btn-icon{font-size:18px}
+.nav-btn-label{font-size:10px;letter-spacing:0.5px;color:#aaa}
+.danger-btn{width:100%;background:none;border:1px solid #ffdddd;color:#cc6666;border-radius:10px;padding:10px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif}
+
+/* PROGRESS BAR */
+.progress-wrap{height:32px;background:#f5f5f0;position:relative;display:flex;align-items:center;border-bottom:1px solid #ebebeb;flex-shrink:0}
+.progress-fill{position:absolute;left:0;top:0;height:100%;transition:width 0.5s ease;opacity:0.2}
+.progress-label{position:relative;z-index:1;padding-left:14px;font-size:12px;color:#888;font-weight:600}
+.progress-pct{margin-left:auto;padding-right:14px;font-size:12px;color:#aaa}
+
+/* SECTION */
+.sec{padding:0 16px 12px}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #ebebeb}
+
+/* WARMUP */
+.warmup-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f0}
+.warmup-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.warmup-name{font-size:14px;color:#333;flex:1}
+.warmup-tag{background:#f5f5f0;color:#aaa;font-size:10px;padding:2px 8px;border-radius:100px;border:1px solid #ebebeb;white-space:nowrap}
+
+/* EXERCISE CARD */
+.ex-card{background:#fff;border-radius:12px;margin-bottom:6px;overflow:hidden;border:1px solid #ebebeb}
+.ex-header{display:flex;align-items:center;padding:12px 12px;gap:8px;cursor:pointer}
+.ex-number{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:#fff}
+.ex-title-area{flex:1}
+.ex-name{font-weight:700;font-size:14px;line-height:1.2;color:#1a1a1a}
+.ex-submeta{color:#aaa;font-size:11px;margin-top:2px}
+.ex-done-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px;flex-shrink:0}
+.ex-chevron{color:#ccc;font-size:12px;flex-shrink:0}
+.suggestion{font-size:12px;padding:6px 12px;display:flex;align-items:center;gap:6px;background:#f0faf0;color:#4a9a4a;border-top:1px solid #e0f0e0}
+
+/* EXPANDED */
+.ex-body{padding:12px 14px 14px;border-top:1px solid #f0f0f0;background:#fafafa}
+.meta-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{background:#fff;color:#888;font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid #ebebeb}
+.chip.hi{color:#333;border-color:#ddd;font-weight:600}
+.input-block{background:#fff;border-radius:10px;padding:12px;border:1px solid #ebebeb;margin-bottom:12px}
+.input-row-2{display:flex;gap:12px;align-items:flex-end}
+.input-group{display:flex;flex-direction:column;gap:4px}
+.input-lbl{color:#aaa;font-size:9px;letter-spacing:1.5px;text-transform:uppercase}
+.num-input{background:#f5f5f0;border:1px solid #e8e8e8;color:#1a1a1a;border-radius:8px;padding:8px 10px;width:84px;font-size:22px;font-family:'DM Sans',sans-serif;text-align:center;font-weight:700}
+.reps-input{background:#f5f5f0;border:1px solid #e8e8e8;color:#1a1a1a;border-radius:8px;padding:8px 10px;width:70px;font-size:22px;font-family:'DM Sans',sans-serif;text-align:center;font-weight:700}
+.unit-lbl{color:#bbb;font-size:13px;padding-bottom:10px}
+.divider-v{width:1px;background:#ebebeb;align-self:stretch;margin:0 4px}
+.total-row{margin-top:8px;font-size:12px;font-weight:700;padding:6px 10px;border-radius:6px;background:#f5f5f0}
+
+/* SET DOTS */
+.set-section{display:flex;flex-direction:column;gap:8px}
+.set-hint{color:#bbb;font-size:11px}
+.set-dots{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.set-dot{width:44px;height:44px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all 0.15s;border:2px solid #e0e0e0;background:#f5f5f0;color:#bbb;display:flex;align-items:center;justify-content:center}
+.set-dot.done{color:#fff;border-color:transparent}
+.set-count{color:#bbb;font-size:12px}
+
+/* NOTES */
+.notes-area{width:100%;background:#fff;border:1px solid #ebebeb;color:#666;border-radius:10px;padding:12px;font-size:14px;font-family:'DM Sans',sans-serif;min-height:80px;resize:none}
+
+/* HISTORY */
+.hist-card{background:#fff;border-radius:12px;padding:14px;margin:0 16px 10px;border:1px solid #ebebeb}
+.hist-row{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid #f5f5f0;margin-top:6px}
+
+/* PROGRESS */
+.tab-row{display:flex;gap:8px;padding:0 16px 16px;overflow-x:auto}
+.tab-btn{border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;white-space:nowrap}
+.prog-card{background:#fff;border-radius:12px;padding:14px;margin:0 16px 10px;border:1px solid #ebebeb}
+.mini-chart{display:flex;align-items:flex-end;gap:5px;height:80px;margin-bottom:4px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:26px}
+.bar{width:100%;border-radius:3px 3px 0 0}
+.bar-label{color:#888;font-size:9px;font-weight:700}
+.bar-date{color:#bbb;font-size:9px}
+
+/* SETTINGS */
+.settings-section{background:#fff;border-radius:12px;padding:16px;border:1px solid #ebebeb;margin-bottom:16px}
+.settings-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:14px}
+.settings-item{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid #f5f5f0}
+.settings-label{color:#555;font-size:13px;font-weight:600}
+.settings-input{background:#f5f5f0;border:1px solid #e8e8e8;color:#333;border-radius:8px;padding:10px 12px;font-size:12px;font-family:'DM Sans',sans-serif;width:100%}
+.settings-save{background:#FF6B35;border:none;color:#fff;font-weight:700;border-radius:8px;padding:7px 14px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;margin-top:4px;align-self:flex-start}
+.drive-btn{border:none;border-radius:10px;padding:12px;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;width:100%;margin-bottom:8px}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.modal-box{background:#fff;border-radius:24px 24px 0 0;padding:20px 20px 48px;width:100%;max-width:480px;max-height:82vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.modal-handle{width:36px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 4px}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start}
+.modal-title{font-weight:800;font-size:17px;flex:1;padding-right:12px;line-height:1.3}
+.close-btn{background:#f5f5f0;border:none;color:#888;border-radius:8px;padding:6px 11px;cursor:pointer;font-size:14px;flex-shrink:0;font-family:'DM Sans',sans-serif}
+.mw-btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:#fff;font-weight:700;font-size:14px;padding:12px;border-radius:12px;font-family:'DM Sans',sans-serif}
+.target-badge{display:flex;align-items:center;gap:8px;background:#f5f5f0;padding:10px 12px;border-radius:10px;border:1px solid #ebebeb}
+.exec-text{color:#555;font-size:14px;line-height:1.8}
+.tips-box{background:#f0faf0;border-radius:12px;padding:14px;border:1px solid #d0e8d0}
+.tips-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.tip{font-size:13px;line-height:1.7;color:#4a8a4a;padding-left:4px}
+
+/* TIMER */
+.timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px}
+.timer-label{color:#aaa;font-size:10px;letter-spacing:4px;text-transform:uppercase}
+.timer-wrap{position:relative;width:140px;height:140px}
+.timer-time{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;font-family:'Bebas Neue',sans-serif;letter-spacing:3px;color:#fff}
+.timer-hint{color:#888;font-size:12px}
+
+/* SUPERSET TAG */
+.superset-tag{background:#FFF5F0;color:#FF6B35;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;border:1px solid #FFD4C2;margin-left:6px}
+
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="home-header">
+    <div class="app-title">IRON<span>LOG</span></div>
+    <div class="app-sub">Il tuo tracker personale</div>
+  </div>
+  <div class="scroll">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Sessioni</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-week">0</div><div class="stat-label">Questa settimana</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-last" style="font-size:13px">—</div><div class="stat-label">Ultimo workout</div></div>
+    </div>
+    <div id="wo-cards" style="padding:0 16px 8px">
+      <div class="section-label" style="color:#aaa;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Scegli scheda</div>
+    </div>
+    <div class="nav-row">
+      <button class="nav-btn" onclick="showScreen('history')">
+        <span class="nav-btn-icon">📅</span><span class="nav-btn-label">STORICO</span>
+      </button>
+      <button class="nav-btn" onclick="showScreen('progress')">
+        <span class="nav-btn-icon">📈</span><span class="nav-btn-label">PROGRESSI</span>
+      </button>
+      <button class="nav-btn" onclick="showScreen('settings')">
+        <span class="nav-btn-icon">⚙️</span><span class="nav-btn-label">IMPOSTAZ.</span>
+      </button>
+    </div>
+    <div style="padding:0 16px 32px" id="clear-wrap"></div>
+  </div>
+</div>
+
+<!-- WORKOUT -->
+<div id="screen-workout" class="screen">
+  <div class="header" id="wo-header">
+    <button class="back-btn" onclick="confirmLeave()">←</button>
+    <div style="text-align:center">
+      <div class="header-title" id="wo-title"></div>
+      <div style="color:#aaa;font-size:11px" id="wo-date"></div>
+    </div>
+    <button class="finish-btn" id="finish-btn" onclick="finishWorkout()">Fine ✓</button>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progress-fill"></div>
+    <span class="progress-label" id="progress-label"></span>
+    <span class="progress-pct" id="progress-pct"></span>
+  </div>
+  <div class="scroll" id="wo-scroll"></div>
+</div>
+
+<!-- HISTORY -->
+<div id="screen-history" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="showScreen('home')">←</button>
+    <div class="header-title">📅 Storico</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="scroll" id="history-list" style="padding-top:12px"></div>
+</div>
+
+<!-- PROGRESS -->
+<div id="screen-progress" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="showScreen('home')">←</button>
+    <div class="header-title">📈 Progressi</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="scroll" style="padding-top:12px">
+    <div class="tab-row" id="progress-tabs"></div>
+    <div id="progress-content"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="screen-settings" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="showScreen('home')">←</button>
+    <div class="header-title">⚙️ Impostazioni</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="scroll" style="padding:16px">
+    <!-- DRIVE -->
+    <div class="settings-section">
+      <div class="settings-title">☁️ Backup Google Drive</div>
+      <div style="color:#aaa;font-size:13px;margin-bottom:12px" id="drive-status">Non connesso</div>
+      <input class="settings-input" id="client-id-input" placeholder="Incolla qui il tuo Client ID Google" style="margin-bottom:10px">
+      <button class="drive-btn" style="background:#4285F4;color:#fff" onclick="connectDrive()">🔑 Connetti Google Drive</button>
+      <button class="drive-btn" style="background:#f5f5f0;color:#555;border:1px solid #ebebeb" onclick="backupToDrive()">⬆️ Salva backup su Drive</button>
+      <button class="drive-btn" style="background:#f5f5f0;color:#555;border:1px solid #ebebeb;margin-bottom:0" onclick="restoreFromDrive()">⬇️ Ripristina da Drive</button>
+    </div>
+    <!-- EXPORT -->
+    <div class="settings-section">
+      <div class="settings-title">📦 Export / Import</div>
+      <div style="display:flex;gap:10px">
+        <button class="drive-btn" style="background:#f5f5f0;color:#555;border:1px solid #ebebeb;flex:1;margin-bottom:0" onclick="exportData()">⬇️ Esporta JSON</button>
+        <label class="drive-btn" style="background:#f5f5f0;color:#555;border:1px solid #ebebeb;flex:1;cursor:pointer;text-align:center;margin-bottom:0">
+          ⬆️ Importa JSON<input type="file" accept=".json" style="display:none" onchange="importData(event)">
+        </label>
+      </div>
+    </div>
+    <!-- LINKS -->
+    <div class="settings-section">
+      <div class="settings-title">🔗 Link MuscleWiki</div>
+      <div style="color:#aaa;font-size:13px;margin-bottom:14px">Correggi i link se l'esercizio non corrisponde.</div>
+      <div id="link-editor"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXEC MODAL -->
+<div class="overlay" id="exec-modal" style="display:none" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <a class="mw-btn" id="modal-mw-btn" href="#" target="_blank">🏋️ Apri su MuscleWiki</a>
+    <div class="target-badge"><span style="font-size:16px">🎯</span><span style="color:#666;font-size:13px" id="modal-target"></span></div>
+    <div class="exec-text" id="modal-desc"></div>
+    <div class="tips-box" id="modal-tips-box">
+      <div class="tips-title" id="modal-tips-title"></div>
+      <div id="modal-tips"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TIMER -->
+<div class="timer-overlay" id="timer-overlay" style="display:none" onclick="stopTimer()">
+  <div class="timer-label">⏱ recupero</div>
+  <div class="timer-wrap">
+    <svg width="140" height="140" style="transform:rotate(-90deg)">
+      <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+      <circle id="timer-circle" cx="70" cy="70" r="60" fill="none" stroke="#FF6B35" stroke-width="8"
+        stroke-dasharray="376.99" stroke-dashoffset="0" stroke-linecap="round"
+        style="transition:stroke-dashoffset 1s linear"/>
+    </svg>
+    <div class="timer-time" id="timer-display">0:00</div>
+  </div>
+  <div class="timer-hint">Tocca per saltare</div>
+</div>
+
+</div>
+<script>
+// ── MUSCLEWIKI LINKS ──────────────────────────────────────────────────────────
+const MW = 'https://musclewiki.com/exercise/';
+const DEFAULT_LINKS = {
+  'Spinte in panca': MW+'dumbbell-bench-press',
+  'Panca inclinata multipower': MW+'barbell-incline-bench-press',
+  'Croci ai cavi': MW+'cable-pec-fly',
+  'Cavi incrociati bassi': MW+'cable-pec-fly',
+  'Military press': MW+'barbell-overhead-press',
+  'Alzate laterali': MW+'cable-low-bilateral-lateral-raise',
+  'Lento avanti con manubri': MW+'dumbbell-overhead-press',
+  'French press bilanciere EZ': MW+'barbell-close-grip-bench-press',
+  'Pushdown': MW+'cable-rope-pushdown',
+  'Lat machine': MW+'machine-pulldown',
+  'Pull over ai cavi': MW+'cable-straight-arm-pulldown',
+  'Rematore cavo basso singolo': MW+'machine-seated-cable-row',
+  'Rematore con bilanciere': MW+'barbell-bent-over-row',
+  'Face pull corda': MW+'cable-seated-rope-face-pull',
+  'Curl EZ': MW+'barbell-curl',
+  'Bayesian curl': MW+'cable-curl',
+  'Curl in piedi al cavo basso': MW+'barbell-curl',
+  'French press al cavo basso': MW+'cable-rope-pushdown',
+  'Reverse fly incrociato': MW+'cable-rear-delt-fly',
+  'Squat con bilanciere': MW+'barbell-squat',
+  'Romanian deadlift': MW+'barbell-romanian-deadlift',
+  'Leg curl': MW+'machine-seated-leg-curl',
+  'Leg extension': MW+'machine-leg-extension',
+  'Calf raise': MW+'barbell-calf-raises',
+  'Pull down ai cavi': MW+'machine-pulldown',
+  'Push-up tecnici': MW+'push-up',
+  'Scapular pull-up': MW+'scapular-pull-up',
+  'Plank': MW+'plank',
+  'Crunch al cavo alto': MW+'cable-crunch',
+  'Leg raise da steso': MW+'lying-leg-raise',
+  'Hanging knee raise': MW+'hanging-knee-raise',
+  'Russian twist': MW+'russian-twist',
+  'Woodchopper al cavo alto': MW+'cable-wood-chop',
+  'Sit up con peso': MW+'weighted-sit-up',
+  'Rollout con bilanciere EZ': MW+'ab-wheel-rollout',
+};
+
+// ── EXECUTION NOTES ───────────────────────────────────────────────────────────
+const EXEC = {
+  'Spinte in panca':{desc:"Sdraiati con i piedi ben piantati a terra, scapole addotte e depresse, petto alto. Scendi con i gomiti leggermente sotto la linea delle spalle, in modo controllato, senza aprire troppo le braccia. Spingi verso l'alto seguendo una traiettoria naturale senza sbattere i manubri. Mantieni i polsi neutri e gli addominali attivi.",target:"Petto, tricipiti, deltoide anteriore",tips:["Tieni le scapole sempre addotte e depresse","Non rimbalzare i manubri in alto","Polsi neutri per tutto il movimento"]},
+  'Panca inclinata multipower':{desc:"Sistema le scapole ferme sullo schienale e tieni il petto aperto durante tutto il movimento. Scendi con controllo fino a sfiorare la linea utile del petto alto, senza perdere la posizione delle spalle. Spingi in alto con un arco stabile e regolare.",target:"Petto alto, deltoide anteriore, tricipiti",tips:["Schienale a 30-45°","Abbassa fino al petto alto, non alla gola","Spalle basse e indietro per tutto il set"]},
+  'Croci ai cavi':{desc:"Parti con il petto aperto e le braccia leggermente flesse, senza bloccare i gomiti. Chiudi davanti al corpo in modo ampio e controllato. Torna indietro lentamente mantenendo sempre tensione sui cavi.",target:"Isolamento del petto",tips:["Mantieni sempre una leggera flessione ai gomiti","Tensione costante in tutta la traiettoria","Nessuno slancio: il movimento parte dal petto"]},
+  'Cavi incrociati bassi':{desc:"I cavi partono dal basso. Porta le mani in alto e verso il centro, come se volesssi abbracciare qualcuno sollevando le braccia. I gomiti restano leggermente flessi. Il movimento finisce davanti al petto alto.",target:"Petto inferiore, isolamento",tips:["I cavi partono da sotto le anche","Il polso rimane neutro","Contrai il petto in cima al movimento"]},
+  'Military press':{desc:"In piedi o seduto, impugna il bilanciere con presa leggermente più larga delle spalle. Parti dal petto alto o dal mento e spingi verticalmente verso l'alto. Tieni il core rigido e non inarcare la schiena. Puoi usare un leggero impulso delle gambe (push press) per le ultime reps difficili.",target:"Deltoide anteriore e globale, tricipiti",tips:["Core rigido per tutto il movimento","Non inarcare la schiena","Il push press sulle ultime reps è tecnica, non barare"]},
+  'Alzate laterali':{desc:"Tieni il busto fermo, le spalle basse e i manubri o il cavo leggermente davanti al fianco. Solleva con i gomiti che guidano il movimento, senza slanci. Fermati circa all'altezza delle spalle, poi scendi lentamente.",target:"Deltoide laterale",tips:["Il gomito guida, il polso segue","Evita di alzare le spalle verso le orecchie","La discesa controllata vale quanto la salita"]},
+  'Lento avanti con manubri':{desc:"Siediti stabile con schiena ben appoggiata e addome attivo. Porta i manubri in basso in modo controllato, con i gomiti leggermente sotto la linea delle spalle. Spingi verso l'alto seguendo una traiettoria naturale.",target:"Deltoide anteriore, spalla globale, tricipiti",tips:["Schiena aderente allo schienale","Non inarcare la schiena","I manubri non devono toccarsi in cima"]},
+  'French press bilanciere EZ':{desc:"Sdraiati stabilmente, gomiti stretti e braccia verticali. Fletti i gomiti portando il bilanciere verso la fronte o dietro la testa. Non aprire i gomiti verso l'esterno.",target:"Tricipite lungo",tips:["I gomiti non devono mai aprirsi","Scegli la variante fronte/nuca in base al comfort della spalla","Fase di discesa lenta e controllata"]},
+  'Pushdown':{desc:"Tieni i gomiti vicini al corpo e il busto fermo. Spingi la corda o la barra verso il basso fino alla completa estensione del gomito. Controlla bene la risalita.",target:"Tricipite laterale e mediale",tips:["Gomiti fissi ai lati del corpo","Estendi completamente ad ogni ripetizione","Nessun dondolio del busto"]},
+  'French press al cavo basso':{desc:"Mantieni i gomiti stretti e il tronco stabile. Estendi e fletti le braccia controllando sempre il cavo.",target:"Tricipite lungo",tips:["Gomiti stretti e fissi","Movimento lento e controllato","Non usare le spalle per aiutarti"]},
+  'Lat machine':{desc:"Afferra la sbarra con presa salda e sistema il busto stabile. Tira la sbarra verso l'alto del petto portando i gomiti giù e dentro. Rilascia lentamente senza perdere il controllo delle scapole.",target:"Gran dorsale, grande rotondo, parte alta del dorso",tips:["Il petto sale verso la sbarra, non viceversa","I gomiti puntano verso il pavimento","Abbassa la sbarra al petto superiore, non alla nuca"]},
+  'Pull over ai cavi':{desc:"In piedi davanti al cavo alto, braccia tese, porta le mani verso il basso e indietro descrivendo un arco. Senti lo stretch del dorsale in allungamento. Torna lentamente alla posizione di partenza.",target:"Gran dorsale in allungamento",tips:["Braccia sempre tese","Senti lo stretch sotto l'ascella","Non usare il peso delle braccia, usa il dorsale"]},
+  'Rematore cavo basso singolo':{desc:"Stabilizza il tronco mantenendo la schiena neutra. Tira il gomito indietro seguendo una linea controllata, senza ruotare il busto. Chiudi bene la scapola in fondo al movimento.",target:"Dorsali, romboidi, parte centrale della schiena",tips:["La scapola deve addursi completamente","Non strappare con la schiena","Pausa di 1 sec in contrazione massima"]},
+  'Rematore con bilanciere':{desc:"Inclina il busto a circa 45° mantenendo la schiena neutra e il collo in linea. Tira il bilanciere verso la parte bassa dell'addome, senza strappare con la schiena.",target:"Dorsali, romboidi, trapezi medi",tips:["Il bilanciere arriva all'ombelico, non al petto","Tieni le ginocchia leggermente flesse","Nessuna iperestensione lombare"]},
+  'Face pull corda':{desc:"Tira la corda verso il viso portando i gomiti verso l'esterno e leggermente in alto. Chiudi le scapole dietro e cerca una forte contrazione nella parte posteriore delle spalle.",target:"Deltoidi posteriori, trapezi, romboidi",tips:["I gomiti devono essere più alti dei polsi in fondo","La corda si divide verso le orecchie, non verso il mento","Ottimo per la salute della spalla"]},
+  'Curl EZ':{desc:"Stai dritto con gomiti vicini al corpo e polsi neutri. Fletti i gomiti senza portare le spalle avanti e senza dondolare il busto. Sali fino alla contrazione massima, poi scendi lentamente.",target:"Bicipiti",tips:["Gomiti fissi ai fianchi per tutto il set","Nessun dondolio del busto o delle spalle","La fase eccentrica deve durare almeno 2 secondi"]},
+  'Bayesian curl':{desc:"Stai in piedi davanti al cavo basso, con il braccio leggermente dietro la linea del corpo. Fletti il gomito portando la mano verso la spalla. Il cavo mantiene tensione massima sia in alto che in basso.",target:"Bicipiti in allungamento",tips:["Il gomito deve essere leggermente dietro il corpo","La tensione è massima anche in posizione bassa","Movimento lento e controllato"]},
+  'Curl in piedi al cavo basso':{desc:"Tieni i gomiti vicini al corpo e il busto fermo. Fletti le braccia senza portare avanti le spalle e senza dondolare. Il cavo mantiene tensione costante anche in fondo al movimento.",target:"Bicipiti",tips:["Il cavo offre tensione in tutto il ROM","Gomiti fissi ai fianchi","Puoi usare barra dritta o EZ"]},
+  'Pull down ai cavi':{desc:"Afferra la sbarra con presa salda e tieni il busto stabile. Tira verso l'alto del petto portando i gomiti giù e dentro. Rilascia lentamente senza perdere il controllo delle scapole.",target:"Gran dorsale, grande rotondo, parte alta del dorso",tips:["Petto in su verso la sbarra","Gomiti puntano al pavimento","Controlla la risalita"]},
+  'Reverse fly incrociato':{desc:"Ai cavi incrociati, porta le mani all'esterno aprendo le braccia in modo controllato. I gomiti restano leggermente flessi. Senti la contrazione nel deltoide posteriore e nelle scapole che si avvicinano.",target:"Deltoide posteriore",tips:["Movimento lento e controllato","Le scapole si adduriscono in fondo al movimento","Non usare il peso delle braccia"]},
+  'Squat con bilanciere':{desc:"Bilanciere sulle spalle, piedi a larghezza spalle o leggermente più larghi. Scendi mantenendo il petto aperto e le ginocchia in linea con i piedi. Risali spingendo attraverso tutta la pianta del piede.",target:"Quadricipiti, glutei, femorali, core",tips:["I talloni restano a terra","Le ginocchia seguono la direzione dei piedi","Non lasciare collassare il petto in avanti"]},
+  'Romanian deadlift':{desc:"Tieni il bilanciere vicino alle cosce, schiena neutra e ginocchia solo leggermente flesse. Spingi il bacino indietro e lascia scendere il peso lungo le gambe senza perdere la tensione nei femorali. Risali spingendo con glutei e femorali.",target:"Femorali, glutei, catena posteriore",tips:["La schiena deve restare neutra per tutto il movimento","Senti l'allungamento nei femorali durante la discesa","Non piegare eccessivamente le ginocchia: non è uno squat"]},
+  'Leg curl':{desc:"Siediti o sdraiati in posizione stabile. Fletti le ginocchia portando i talloni verso i glutei in modo controllato. Stringi i femorali in cima al movimento prima di rilasciare lentamente.",target:"Femorali (bicipiti femorali)",tips:["La fase eccentrica deve essere lenta: 2-3 secondi","Non sollevare il bacino durante il movimento","Pausa di contrazione in cima per maggiore attivazione"]},
+  'Leg extension':{desc:"Siediti con la schiena ben appoggiata allo schienale. Distendi le gambe in modo pulito e controllato. Stringi i quadricipiti completamente in alto senza sbattere il peso. Controlla bene la discesa.",target:"Quadricipiti",tips:["Non sbattere il peso in cima: estendi gradualmente","La discesa lenta attiva meglio i quadricipiti","Non iperestendere il ginocchio"]},
+  'Calf raise':{desc:"Spingi sulle punte salendo il più possibile e fermati un attimo in massima contrazione. Scendi lentamente sentendo allungare bene il polpaccio nella fase bassa.",target:"Polpacci (gastrocnemio e soleo)",tips:["Scendi fino in fondo per uno stretch completo","Pausa di 1 sec in cima per la contrazione massima","Varia la posizione dei piedi per lavorare angoli diversi"]},
+  'Crunch al cavo alto':{desc:"In ginocchio davanti al cavo alto, afferra la corda dietro la testa. Fletti il tronco verso il basso contraendo l'addome, senza usare le braccia per tirare. Torna lentamente alla posizione iniziale.",target:"Retto dell'addome (parte alta)",tips:["Il movimento parte dall'addome, non dalle braccia","Espira durante la flessione","Pausa di contrazione in basso"]},
+  'Plank':{desc:"Appoggia avambracci e punte dei piedi, tenendo il corpo in linea. Stringi addome e glutei, senza alzare troppo il bacino e senza far crollare la zona lombare. Respira in modo regolare.",target:"Core profondo, stabilità del tronco",tips:["Il bacino deve essere in linea con spalle e talloni","Non trattenere il respiro: respira con il diaframma","La qualità della posizione vale più dei secondi tenuti"]},
+  'Russian twist':{desc:"Siediti con le gambe sollevate e il busto inclinato indietro di circa 45°. Ruota il torso da un lato all'altro portando il kettlebell vicino al pavimento. Il movimento parte dalla rotazione del tronco.",target:"Obliqui, rotatori",tips:["Non usare le braccia per girare: ruota il tronco","Più le gambe sono alte, più è difficile","Mantieni la schiena lunga, non curva"]},
+  'Woodchopper al cavo alto':{desc:"Al cavo alto, porta le mani diagonalmente dall'alto verso il basso e verso l'esterno, ruotando il torso. Il movimento va dall'alto a sinistra verso il basso a destra o viceversa. Le braccia restano tese.",target:"Obliqui, rotatori, trasverso",tips:["Il movimento viene dalla rotazione del tronco","Le braccia restano tese","Controlla bene la fase di ritorno"]},
+  'Leg raise da steso':{desc:"Sdraiati a terra con le braccia ai lati. Solleva le gambe tese verso il soffitto e poi scendi lentamente senza toccare terra. Puoi usare un leggero slancio ma controlla sempre la discesa.",target:"Retto dell'addome (parte bassa)",tips:["La lombare deve restare a terra","Scendi lento: è la fase più importante","Se è troppo difficile, piega leggermente le ginocchia"]},
+  'Hanging knee raise':{desc:"Appenditi alla sbarra con le braccia tese. Senza usare lo slancio, porta le ginocchia verso il petto inclinando il bacino in avanti. Il movimento deve partire dal bacino, non dalle gambe che oscillano.",target:"Retto dell'addome (parte bassa), flessori dell'anca",tips:["Il bacino deve inclinarsi in avanti: non oscillare","Sali lentamente e scendi con controllo","Più le gambe sono tese, più è difficile"]},
+  'Sit up con peso':{desc:"Sdraiati con le ginocchia piegate e il peso tra le mani con le braccia tese sopra la testa. Sali verso l'alto mantenendo le braccia tese e il peso lontano dal corpo. Scendi lentamente.",target:"Retto dell'addome completo",tips:["Il peso lontano dal corpo aumenta il momento di leva","Sali lentamente, non a scatto","La discesa è importante quanto la salita"]},
+  'Rollout con bilanciere EZ':{desc:"In ginocchio con le mani sul bilanciere EZ, spingi in avanti lentamente estendendo le braccia finché il corpo è quasi orizzontale. Torna indietro contraendo il core. Parti con un range di movimento ridotto.",target:"Core profondo, trasverso, retto, stabilizzatori",tips:["Parti con un piccolo range e aumenta progressivamente","Se senti la schiena cedere ti sei spinto troppo avanti","È un esercizio avanzato: non aver fretta di aumentare il ROM"]},
+  'Band pull apart':{desc:"Afferra l'elastico con le braccia distese davanti al petto, spalle basse e collo rilassato. Apri le braccia in modo controllato portando le mani verso l'esterno. Fermati un attimo in chiusura scapolare, poi torna lentamente.",target:"Deltoidi posteriori, romboidi, trapezi medi",tips:["Mantieni le spalle lontane dalle orecchie","Movimento lento e controllato","Ideale per riscaldare la cuffia dei rotatori"]},
+  'Pass through con bastone':{desc:"Tieni il bastone con presa ampia davanti alle cosce e sollevalo sopra la testa con un movimento continuo. Portalo dietro senza forzare, mantenendo le braccia distese e le spalle rilassate.",target:"Spalle, mobilità toracica, cingolo scapolare",tips:["Presa più larga = più facile; riducila progressivamente","Non forzare se senti dolore alla spalla","Movimento lento e fluido"]},
+  'Rotazione laterale con bastone':{desc:"Tieni il bastone orizzontale impugnando alle estremità. La mano destra guida il bastone sopra la testa portandolo dietro mentre la sinistra segue il movimento, poi si torna alla posizione iniziale. Alterna i lati.",target:"Mobilità delle spalle, cingolo scapolare",tips:["Il movimento deve essere fluido e continuo","Non forzare: adatta l'ampiezza alla tua mobilità attuale","Respira in modo regolare durante il movimento"]},
+  'Cross body arm swing':{desc:"In piedi con le braccia distese, porta un braccio davanti al petto verso il lato opposto mentre l'altro va indietro. Alterna i lati in modo dinamico e fluido, come se stessi nuotando.",target:"Spalle, cuffia dei rotatori, mobilità toracica",tips:["Movimento dinamico, non statico","Aumenta progressivamente l'ampiezza","Tieni le spalle basse e rilassate"]},
+  'Scapular pull-up':{desc:"Appenditi alla sbarra con le braccia tese e il corpo fermo. Senza piegare i gomiti, porta le spalle giù e leggermente indietro, come se volessi staccarti dalla sbarra con le scapole. Ritorna lentamente.",target:"Gran dorsale, trapezio inferiore, romboidi",tips:["Le braccia rimangono tese: è un movimento di sole scapole","Ottimo per imparare l'attivazione del dorsale","Esegui lentamente"]},
+  'Face pull leggero':{desc:"Tira verso il viso con gomiti alti ma stabili, mantenendo il busto fermo. Chiudi bene le scapole dietro e controlla il ritorno senza mollare la tensione. Peso leggero: è riscaldamento.",target:"Deltoidi posteriori, trapezi, romboidi",tips:["Tensione leggera: obiettivo è riscaldare la spalla posteriore","I gomiti salgono all'altezza delle spalle o più in alto","Ottimo per prevenire infortuni alla spalla"]},
+  'Push-up tecnici':{desc:"Mettiti in plank con mani sotto le spalle, corpo in linea e addome attivo. Scendi in modo controllato mantenendo il busto fermo. Spingi su senza rimbalzare. Obiettivo: attivare il pattern di spinta.",target:"Petto, tricipiti, deltoide anteriore",tips:["Il corpo deve rimanere in linea: niente bacino che scende","Scapole stabili durante tutto il movimento","Concentrati sulla qualità, non sulla quantità"]},
+  'Hip hinge con bastone':{desc:"Tieni il bastone lungo la schiena per sentire il movimento dell'anca. Spingi il bacino indietro mantenendo la schiena neutra. Il bastone deve rimanere a contatto con testa, zona dorsale e sacro.",target:"Femorali, glutei, pattern di hip hinge",tips:["Il bastone è il tuo feedback posturale","Ginocchia leggermente flesse, non è uno squat","Senti l'allungamento nei femorali"]},
+  'Squat con bastone':{desc:"Tieni il bastone sulle spalle o davanti al petto. Scendi in modo controllato tenendo il petto aperto e le ginocchia in linea con i piedi. Resta stabile in basso e risali senza slanci.",target:"Quadricipiti, glutei, mobilità",tips:["I talloni restano a terra","Le ginocchia seguono la direzione dei piedi","Scendi fino a dove la mobilità ti permette"]},
+  'Abductor machine':{desc:"Siediti sulla macchina con le cosce appoggiate ai cuscinetti. Apri le gambe verso l'esterno in modo controllato fino al massimo range confortevole. Torna lentamente alla posizione iniziale senza mollare la tensione.",target:"Glutei (medio e piccolo), stabilizzatori dell'anca",tips:["Schiena appoggiata allo schienale","Movimento lento e controllato","Usa un peso leggero: è attivazione"]},
+  'Cyclette / Reclined / Tapis roulant':{desc:"Vai a ritmo facile e regolare per 5 minuti. Non è cardio vero — serve solo per alzare la temperatura muscolare e lubrificare le articolazioni delle gambe. Non devi andare in affanno.",target:"Quadricipiti, femorali, glutei, anche, ginocchia",tips:["Ritmo facile: dovresti poter parlare senza affanno","Non partire subito forte","Scegli in base a disponibilità e voglia"]},
+  'Vacuum':{desc:"Espira completamente, poi porta l'ombelico verso dentro e in alto, come se volessi avvicinarlo alla colonna. Tieni il petto alto ma rilassato. Mantieni per il tempo previsto, poi rilassa e respira normalmente.",target:"Trasverso dell'addome, controllo della vita",tips:["Puoi farlo in piedi, seduto o in quadrupedia","Il trasverso è il muscolo più profondo dell'addome","Con costanza aiuta a ridurre la circonferenza vita"]},
+  'Stretch petto':{desc:"Appoggia avambraccio e mano a una parete con il gomito all'altezza della spalla. Ruota il busto nella direzione opposta finché senti l'allungamento sul petto. Mantieni la spalla lontana dall'orecchio.",target:"Pettorali, parte anteriore della spalla",tips:["Non forzare: allungamento confortevole","La spalla deve restare abbassata","Mantieni 20-30 sec per lato"]},
+  'Stretch spalle anteriori/laterali':{desc:"Porta un braccio davanti al corpo o sopra la testa. Mantieni la posizione senza torsioni improvvise del tronco e senza alzare la spalla. Respira lentamente.",target:"Deltoidi",tips:["Porta il braccio lentamente, senza strappi","La spalla dell'altro lato deve restare abbassata","Mantieni 20-30 sec per lato"]},
+  'Stretch tricipiti':{desc:"Porta il braccio sopra la testa e piega il gomito, lasciando la mano scendere dietro la nuca. Con l'altra mano spingi delicatamente il gomito verso il basso. Tieni il busto fermo.",target:"Tricipiti, capo lungo",tips:["Non tirare con forza: allungamento progressivo","Il busto deve restare eretto","Mantieni 20-30 sec per lato"]},
+  'Stretch gran dorsale/fianco':{desc:"Afferra un supporto alto o appoggia le mani su una panca e spingi il bacino indietro. Lascia scendere il torace verso il basso senza perdere controllo della schiena.",target:"Gran dorsale, fascia laterale del tronco",tips:["Il bacino si spinge indietro, non verso il basso","Respira profondamente per intensificare lo stretch","Mantieni 20-30 sec per lato"]},
+  'Stretch dorsali':{desc:"Afferra un supporto alto o appoggia le mani su una panca e spingi il bacino indietro. Lascia scendere il torace verso il basso e senti l'allungamento lungo il fianco e sotto l'ascella.",target:"Gran dorsale",tips:["Il bacino si spinge indietro","Nell'espirazione senti lo stretch aumentare","Mantieni 20-30 sec per lato"]},
+  'Stretch bicipiti':{desc:"Tendi il braccio dietro il corpo o contro una parete con il palmo orientato verso il basso o l'esterno. Ruota il busto leggermente nella direzione opposta.",target:"Bicipiti",tips:["Il palmo deve essere rivolto verso il basso o l'esterno","Tieni la spalla abbassata","Mantieni 20-30 sec per lato"]},
+  'Stretch deltoidi posteriori':{desc:"Porta un braccio davanti al petto e accompagnalo delicatamente con l'altro braccio premendo sull'avambraccio o sul gomito. Mantieni la spalla rilassata.",target:"Deltoidi posteriori",tips:["Non tirare troppo forte: allungamento dolce","La spalla deve restare abbassata","Mantieni 20-30 sec per lato"]},
+  'Stretch trapezi/collo':{desc:"Inclina la testa lateralmente in modo molto delicato, portando l'orecchio verso la spalla. La spalla del lato in allungamento deve restare bassa e rilassata.",target:"Trapezi superiori, zona cervicale",tips:["Inclinazione delicatissima: non forzare mai il collo","La spalla opposta deve restare bassa","Mantieni 20-30 sec per lato"]},
+  'Stretch femorali':{desc:"Porta il bacino indietro e inclinati in avanti con la schiena lunga, cercando l'allungamento sul retro coscia. La schiena deve restare neutra, non curva.",target:"Femorali",tips:["La schiena deve rimanere lunga, non curva","Non rimbalzare: mantieni la posizione stabile","Mantieni 20-30 sec per lato"]},
+  'Stretch quadricipiti':{desc:"Afferra il piede dietro di te e porta il tallone verso il gluteo. Tieni il bacino stabile e le ginocchia vicine. Puoi appoggiarti a una parete per l'equilibrio.",target:"Quadricipiti",tips:["Le ginocchia devono stare vicine, non divergere","Il bacino non deve ruotare","Mantieni 20-30 sec per lato"]},
+  'Stretch glutei':{desc:"Porta una caviglia sopra il ginocchio opposto (posizione figura 4) o usa una variante a terra. Spingi delicatamente il bacino in avanti o avvicina le gambe al petto se sei a terra.",target:"Glutei, piriforme",tips:["La schiena deve restare lunga","Non forzare se senti dolore all'anca","Mantieni 20-30 sec per lato"]},
+  'Stretch polpacci':{desc:"Spingi il tallone verso il pavimento con la gamba distesa e il piede ben appoggiato. Mantieni il ginocchio teso per allungare il gastrocnemio. Piega leggermente il ginocchio per sentire anche il soleo.",target:"Polpacci (gastrocnemio e soleo)",tips:["Gamba tesa = stretch sul gastrocnemio","Gamba leggermente piegata = stretch sul soleo","Mantieni 20-30 sec per lato"]},
+};
+
+// ── BARBELL WEIGHTS ───────────────────────────────────────────────────────────
+const BARBELL = {
+  'Squat con bilanciere': {w:15, label:'bilanciere'},
+  'Romanian deadlift': {w:15, label:'bilanciere'},
+  'Rematore con bilanciere': {w:15, label:'bilanciere'},
+  'Spinte in panca': {w:15, label:'bilanciere'},
+  'French press bilanciere EZ': {w:8, label:'bilanciere EZ'},
+  'Rollout con bilanciere EZ': {w:8, label:'bilanciere EZ'},
+  'Panca inclinata multipower': {w:20, label:'sbarra multipower'},
+  'Calf raise': {w:20, label:'sbarra multipower'},
+};
+
+// ── WORKOUTS ──────────────────────────────────────────────────────────────────
+const WORKOUTS = {
+  Push:{color:'#FF6B35',icon:'💪',day:'Lunedì',cardio:'🪢 Corda — 8-10 minuti (ritmo medio o 30/30)',
+    warmup:[
+      {name:'Band pull apart',equipment:'elastico',target:'deltoidi posteriori, romboidi'},
+      {name:'Pass through con bastone',equipment:'bastone',target:'spalle, mobilità toracica'},
+      {name:'Rotazione laterale con bastone',equipment:'bastone',target:'mobilità spalle'},
+      {name:'Cross body arm swing',equipment:'corpo libero',target:'spalle, cuffia dei rotatori'},
+      {name:'Push-up tecnici',equipment:'corpo libero',target:'petto, tricipiti, deltoide anteriore'},
+    ],
+    exercises:[
+      {name:'Spinte in panca',sets:3,reps:'12',defaultWeight:15,rest:90,rir:'1-2',notes:'manubri'},
+      {name:'Panca inclinata multipower',sets:3,reps:'10',defaultWeight:20,rest:90,rir:'1-2',notes:''},
+      {name:'Croci ai cavi',sets:3,reps:'12',defaultWeight:null,rest:60,rir:'1-2',notes:''},
+      {name:'Cavi incrociati bassi',sets:3,reps:'12',defaultWeight:null,rest:60,rir:'1-2',notes:''},
+      {name:'Military press',sets:3,reps:'10',defaultWeight:null,rest:90,rir:'1-2',notes:'con push press sulle ultime reps'},
+      {name:'Alzate laterali',sets:3,reps:'12',defaultWeight:7,rest:60,rir:'1-2',notes:'manubri o cavo'},
+      {name:'French press bilanciere EZ',sets:2,reps:'10',defaultWeight:8,rest:60,rir:'1-2',notes:''},
+      {name:'Pushdown',sets:3,reps:'10',defaultWeight:35,rest:60,rir:'1-2',notes:''},
+    ],
+    core:[
+      {name:'Crunch al cavo alto',sets:3,reps:'12-15'},
+      {name:'Plank',sets:3,reps:'30-45 sec'},
+      {name:'Vacuum',sets:'4/5',reps:'15-25 sec'},
+    ],
+    stretch:['Stretch petto','Stretch spalle anteriori/laterali','Stretch tricipiti','Stretch gran dorsale/fianco'],
+  },
+  Pull:{color:'#4ECDC4',icon:'🏋️',day:'Martedì',cardio:'🚴 Cyclette o Tapis — 8-10 minuti con programma preimpostato',
+    warmup:[
+      {name:'Band pull apart',equipment:'elastico',target:'deltoidi posteriori, romboidi'},
+      {name:'Pass through con bastone',equipment:'bastone',target:'spalle, mobilità toracica'},
+      {name:'Rotazione laterale con bastone',equipment:'bastone',target:'mobilità spalle'},
+      {name:'Scapular pull-up',equipment:'corpo libero',target:'gran dorsale, trapezio inferiore'},
+      {name:'Face pull leggero',equipment:'elastico o corda leggera',target:'deltoidi posteriori, trapezi'},
+    ],
+    exercises:[
+      {name:'Lat machine',sets:4,reps:'10',defaultWeight:40,rest:90,rir:'1',notes:''},
+      {name:'Pull over ai cavi',sets:3,reps:'12',defaultWeight:null,rest:75,rir:'1-2',notes:''},
+      {name:'Rematore cavo basso singolo',sets:3,reps:'10',defaultWeight:25,rest:75,rir:'1-2',notes:''},
+      {name:'Face pull corda',sets:3,reps:'12',defaultWeight:30,rest:60,rir:'1-2',notes:''},
+      {name:'Curl EZ',sets:3,reps:'8-12',defaultWeight:12,rest:60,rir:'1-2',notes:''},
+      {name:'Bayesian curl',sets:3,reps:'10',defaultWeight:null,rest:60,rir:'1-2',notes:'cavo basso'},
+    ],
+    core:[
+      {name:'Russian twist',sets:3,reps:'15-20 per lato'},
+      {name:'Rollout con bilanciere EZ',sets:3,reps:'8-12'},
+      {name:'Vacuum',sets:'4/5',reps:'15-25 sec'},
+    ],
+    stretch:['Stretch dorsali','Stretch bicipiti','Stretch deltoidi posteriori','Stretch trapezi/collo'],
+  },
+  Legs:{color:'#A8E6CF',icon:'🦵',day:'Mercoledì',cardio:'🪢 Corda — 8-10 minuti (ritmo medio o 30/30)',
+    warmup:[
+      {name:'Cyclette / Reclined / Tapis roulant',equipment:'cardio',target:'gambe, anche — 5 min leggero'},
+      {name:'Abductor machine',equipment:'macchinario',target:'glutei, stabilizzatori anca'},
+      {name:'Pass through con bastone',equipment:'bastone',target:'spalle e mobilità generale'},
+      {name:'Squat con bastone',equipment:'bastone',target:'quadricipiti, glutei, mobilità'},
+      {name:'Hip hinge con bastone',equipment:'bastone',target:'femorali, glutei, pattern di hip hinge'},
+    ],
+    exercises:[
+      {name:'Squat con bilanciere',sets:4,reps:'10',defaultWeight:40,rest:90,rir:'1-2',notes:''},
+      {name:'Romanian deadlift',sets:4,reps:'10',defaultWeight:50,rest:90,rir:'1-2',notes:''},
+      {name:'Leg curl',sets:3,reps:'10-12',defaultWeight:40,rest:60,rir:'1-2',notes:''},
+      {name:'Leg extension',sets:3,reps:'12',defaultWeight:50,rest:60,rir:'1-2',notes:''},
+      {name:'Calf raise',sets:3,reps:'12-20',defaultWeight:20,rest:60,rir:'1-2',notes:''},
+    ],
+    core:[
+      {name:'Leg raise da steso',sets:3,reps:'12-15'},
+      {name:'Sit up con peso',sets:3,reps:'12'},
+      {name:'Vacuum',sets:'4/5',reps:'15-25 sec'},
+    ],
+    stretch:['Stretch femorali','Stretch quadricipiti','Stretch glutei','Stretch polpacci'],
+  },
+  Upper:{color:'#C9B1FF',icon:'🔝',day:'Giovedì',cardio:'🚴 Cyclette o Tapis — 8-10 minuti con programma preimpostato',
+    warmup:[
+      {name:'Band pull apart',equipment:'elastico',target:'deltoidi posteriori, romboidi'},
+      {name:'Pass through con bastone',equipment:'bastone',target:'spalle, mobilità toracica'},
+      {name:'Rotazione laterale con bastone',equipment:'bastone',target:'mobilità spalle'},
+      {name:'Cross body arm swing',equipment:'corpo libero',target:'spalle, cuffia dei rotatori'},
+      {name:'Push-up tecnici',equipment:'corpo libero',target:'petto, tricipiti, deltoide anteriore'},
+    ],
+    exercises:[
+      {name:'Spinte in panca',sets:4,reps:'8',defaultWeight:20,rest:90,rir:'1-2',notes:'bilanciere'},
+      {name:'Rematore con bilanciere',sets:4,reps:'8',defaultWeight:30,rest:90,rir:'1-2',notes:''},
+      {name:'Pull down ai cavi',sets:4,reps:'10',defaultWeight:40,rest:75,rir:'1-2',notes:''},
+      {name:'Lento avanti con manubri',sets:3,reps:'10',defaultWeight:10,rest:75,rir:'1-2',notes:'10 kg per parte'},
+      {name:'Alzate laterali',sets:3,reps:'12',defaultWeight:7,rest:60,rir:'1-2',notes:'superset con reverse fly',superset:true},
+      {name:'Reverse fly incrociato',sets:3,reps:'12',defaultWeight:null,rest:60,rir:'1-2',notes:'superset con alzate laterali',superset:true},
+      {name:'Curl in piedi al cavo basso',sets:3,reps:'12',defaultWeight:35,rest:60,rir:'1-2',notes:''},
+      {name:'French press al cavo basso',sets:3,reps:'10',defaultWeight:30,rest:60,rir:'1-2',notes:''},
+    ],
+    core:[
+      {name:'Hanging knee raise',sets:3,reps:'12-15'},
+      {name:'Woodchopper al cavo alto',sets:3,reps:'12 per lato'},
+      {name:'Vacuum',sets:'4/5',reps:'15-25 sec'},
+    ],
+    stretch:['Stretch dorsali','Stretch bicipiti','Stretch deltoidi posteriori','Stretch trapezi/collo'],
+  },
+};
+
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+const SK = 'ironlog_v2';
+let appData = {sessions:[]};
+let customLinks = {};
+let session = null;
+let expandedEx = null;
+let currentProgressWO = 'Push';
+let timerInterval = null;
+let timerTotal = 0;
+let timerRemaining = 0;
+let activeWOColor = '#FF6B35';
+let driveToken = null;
+let driveFileId = null;
+
+function loadAll(){
+  try{const d=localStorage.getItem(SK);if(d)appData=JSON.parse(d);}catch{}
+  try{const l=localStorage.getItem(SK+'_links');if(l)customLinks=JSON.parse(l);}catch{}
+  try{
+    driveToken=localStorage.getItem('drive_token');
+    driveFileId=localStorage.getItem('drive_file_id');
+    const cid=localStorage.getItem('drive_client_id');
+    if(cid)document.getElementById('client-id-input').value=cid;
+    if(driveToken)document.getElementById('drive-status').textContent='✅ Connesso a Google Drive';
+  }catch{}
+}
+function saveAll(){try{localStorage.setItem(SK,JSON.stringify(appData));}catch{}}
+function saveLinks(){try{localStorage.setItem(SK+'_links',JSON.stringify(customLinks));}catch{}}
+function getLink(name){return customLinks[name]||DEFAULT_LINKS[name]||null;}
+
+// ── SCREENS ───────────────────────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  if(id==='home')renderHome();
+  if(id==='history')renderHistory();
+  if(id==='progress')renderProgress();
+  if(id==='settings')renderSettings();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function fmtDate(d){return new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtTime(s){return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── HOME ──────────────────────────────────────────────────────────────────────
+function renderHome(){
+  const total=appData.sessions.length;
+  const now=new Date(),sow=new Date(now);sow.setDate(now.getDate()-now.getDay());
+  const week=appData.sessions.filter(s=>new Date(s.date)>=sow).length;
+  const last=appData.sessions[appData.sessions.length-1];
+  document.getElementById('stat-total').textContent=total;
+  document.getElementById('stat-week').textContent=week;
+  const le=document.getElementById('stat-last');
+  le.style.fontSize=last?'13px':'22px';
+  le.textContent=last?(WORKOUTS[last.workout]?.icon+' '+last.workout):'—';
+
+  const days=['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+  const todayDay=days[now.getDay()];
+  const todayWO=Object.entries(WORKOUTS).find(([,w])=>w.day.startsWith(todayDay));
+
+  let html='<div style="color:#aaa;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Scegli scheda</div>';
+
+  if(todayWO){
+    html+=`<div style="background:#FFF5F0;border-radius:10px;padding:10px 14px;border:1px solid #FFD4C2;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <span style="color:#aaa;font-size:12px">Oggi</span>
+      <span style="color:#FF6B35;font-weight:700;font-size:13px">${todayWO[0]} ${todayWO[1].icon}</span>
+    </div>`;
+  }
+
+  Object.entries(WORKOUTS).forEach(([name,w])=>{
+    const lastS=[...appData.sessions].reverse().find(s=>s.workout===name);
+    html+=`<button class="wo-card" onclick="startWorkout('${name}')" style="border-left:4px solid ${w.color}">
+      <div style="font-size:28px">${w.icon}</div>
+      <div style="flex:1">
+        <div class="wo-name" style="color:${w.color}">${name}</div>
+        <div class="wo-meta">${w.exercises.length} esercizi · ${w.day} · ${w.cardio.split('—')[0].trim()}</div>
+        ${lastS?`<div class="wo-last">Ultima: ${fmtDate(lastS.date)}</div>`:''}
+      </div>
+      <div style="color:${w.color};font-size:18px">▶</div>
+    </button>`;
+  });
+
+  document.getElementById('wo-cards').innerHTML=html;
+  document.getElementById('clear-wrap').innerHTML=total>0?
+    `<button class="danger-btn" onclick="clearData()">🗑 Cancella tutti i dati</button>`:'';
+}
+
+function clearData(){
+  if(confirm('Cancellare tutti i dati?')){appData={sessions:[]};saveAll();renderHome();}
+}
+
+// ── WORKOUT ───────────────────────────────────────────────────────────────────
+function startWorkout(name){
+  const wo=WORKOUTS[name];
+  const last=[...appData.sessions].reverse().find(s=>s.workout===name);
+  session={
+    workout:name,date:new Date().toISOString(),notes:'',
+    logs:wo.exercises.map((ex,i)=>({
+      name:ex.name,
+      weight:last?.logs?.[i]?.weight??(ex.defaultWeight??''),
+      reps:last?.logs?.[i]?.reps??ex.reps,
+      doneCount:0,totalSets:ex.sets,
+    })),
+  };
+  expandedEx=0;
+  activeWOColor=wo.color;
+  document.getElementById('wo-title').textContent=wo.icon+' '+name;
+  document.getElementById('wo-title').style.color=wo.color;
+  document.getElementById('wo-date').textContent=fmtDate(session.date)+' · '+wo.day;
+  document.getElementById('finish-btn').style.background=wo.color;
+  document.getElementById('wo-header').style.borderBottom=`2px solid ${wo.color}33`;
+  document.getElementById('timer-circle').style.stroke=wo.color;
+  renderWorkout();
+  showScreen('workout');
+}
+
+function renderWorkout(){
+  const wo=WORKOUTS[session.workout];
+  const totalDone=session.logs.reduce((a,l)=>a+l.doneCount,0);
+  const totalSets=session.logs.reduce((a,l)=>a+l.totalSets,0);
+  const pct=Math.round((totalDone/totalSets)*100);
+  const fill=document.getElementById('progress-fill');
+  fill.style.width=pct+'%';fill.style.background=wo.color;
+  document.getElementById('progress-label').textContent=`${totalDone}/${totalSets} serie`;
+  document.getElementById('progress-pct').textContent=pct+'%';
+
+  let html='';
+
+  // WARMUP
+  html+=`<div class="sec" style="margin-top:12px"><div class="sec-title" style="color:${wo.color}">🔥 Riscaldamento</div>`;
+  wo.warmup.forEach(w=>{
+    html+=`<div class="warmup-item">
+      <div class="warmup-dot" style="background:${wo.color}"></div>
+      <span class="warmup-name">${esc(w.name)}</span>
+      <span class="warmup-tag">${esc(w.equipment)}</span>
+      <button class="icon-btn" onclick="openModal('${esc(w.name)}','${esc(session.workout)}')">📖</button>
+    </div>`;
+  });
+  html+='</div>';
+
+  // EXERCISES
+  html+=`<div class="sec"><div class="sec-title" style="color:${wo.color}">💥 Esercizi principali</div>`;
+  session.logs.forEach((log,exIdx)=>{
+    const ex=wo.exercises[exIdx];
+    const allDone=log.doneCount>=log.totalSets;
+    const isOpen=expandedEx===exIdx;
+    const bar=BARBELL[ex.name];
+    const suggestion=getSuggestion(session.workout,ex.name);
+
+    html+=`<div class="ex-card" style="border-left:3px solid ${allDone?wo.color:'#ebebeb'}">
+      <div class="ex-header" onclick="toggleEx(${exIdx})">
+        <div class="ex-number" style="background:${allDone?wo.color:'#e0e0e0'}">${exIdx+1}</div>
+        <div class="ex-title-area">
+          <div class="ex-name" style="color:${allDone?wo.color:'#1a1a1a'}">${esc(log.name)}${ex.superset?'<span class="superset-tag">SUPERSET</span>':''}</div>
+          <div class="ex-submeta">${ex.sets}×${ex.reps} · rec ${fmtTime(ex.rest)} · RIR ${ex.rir}</div>
+        </div>
+        <span class="ex-done-badge" style="background:${allDone?wo.color+'22':'#f5f5f0'};color:${allDone?wo.color:'#bbb'}">${log.doneCount}/${log.totalSets}${allDone?' ✓':''}</span>
+        <button class="icon-btn" onclick="event.stopPropagation();openModal('${esc(log.name)}','${esc(session.workout)}')">📖</button>
+        <span class="ex-chevron">${isOpen?'▲':'▼'}</span>
+      </div>`;
+
+    if(suggestion)html+=`<div class="suggestion">${esc(suggestion)}</div>`;
+
+    if(isOpen){
+      html+=`<div class="ex-body">
+        <div class="meta-chips">
+          <span class="chip hi">⏱ ${fmtTime(ex.rest)}</span>
+          <span class="chip hi">RIR ${ex.rir}</span>
+          ${ex.notes?`<span class="chip">📝 ${esc(ex.notes)}</span>`:''}
+          ${ex.superset?`<span class="chip" style="color:#FF6B35;border-color:#FFD4C2">🔄 Superset</span>`:''}
+        </div>
+        <div class="input-block">
+          <div class="input-row-2">
+            <div class="input-group">
+              <div class="input-lbl">${bar?`Piastre (${bar.label}: ${bar.w} kg)`:'Carico'}</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="number" class="num-input" value="${esc(String(log.weight))}" placeholder="—"
+                  oninput="updateLog(${exIdx},'weight',this.value)" id="wi-${exIdx}">
+                <span class="unit-lbl">kg</span>
+              </div>
+              ${bar?`<div class="total-row" style="color:${wo.color}" id="tot-${exIdx}">Totale: ${bar.w} + ${log.weight||0} = ${bar.w+parseFloat(log.weight||0)} kg</div>`:''}
+            </div>
+            <div class="divider-v"></div>
+            <div class="input-group">
+              <div class="input-lbl">Reps</div>
+              <input type="text" class="reps-input" value="${esc(String(log.reps))}" placeholder="—"
+                onchange="updateLog(${exIdx},'reps',this.value)">
+            </div>
+          </div>
+        </div>
+        <div class="set-section">
+          <div class="set-hint">Tocca per segnare una serie → avvia il recupero</div>
+          <div class="set-dots">`;
+
+      for(let si=0;si<log.totalSets;si++){
+        const done=si<log.doneCount;
+        html+=`<div class="set-dot${done?' done':''}"
+          style="background:${done?wo.color:'#f5f5f0'};border-color:${done?wo.color:'#e0e0e0'};color:${done?'#fff':'#bbb'}"
+          onclick="${done?`unmarkSet(${exIdx})`:`markSet(${exIdx},${ex.rest})`}">${done?'✓':si+1}</div>`;
+      }
+      html+=`<span class="set-count">${log.doneCount}/${log.totalSets}</span>`;
+      html+=`</div></div></div>`;
+    }
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // CORE
+  html+=`<div class="sec"><div class="sec-title" style="color:${wo.color}">🧱 Core</div>`;
+  wo.core.forEach(c=>{
+    html+=`<div class="warmup-item">
+      <div class="warmup-dot" style="background:${wo.color}"></div>
+      <span class="warmup-name">${esc(c.name)}</span>
+      <span class="warmup-tag">${c.sets} × ${c.reps}</span>
+      <button class="icon-btn" onclick="openModal('${esc(c.name)}','${esc(session.workout)}')">📖</button>
+    </div>`;
+  });
+  html+='</div>';
+
+  // CARDIO
+  html+=`<div class="sec"><div class="sec-title" style="color:${wo.color}">🏃 Cardio finale</div>
+    <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #ebebeb">
+      <div style="color:#333;font-size:14px">${esc(wo.cardio)}</div>
+    </div></div>`;
+
+  // STRETCH
+  html+=`<div class="sec"><div class="sec-title" style="color:${wo.color}">🧘 Stretching</div>`;
+  wo.stretch.forEach(s=>{
+    html+=`<div class="warmup-item">
+      <div class="warmup-dot" style="background:${wo.color}"></div>
+      <span class="warmup-name">${esc(s)}</span>
+      <span class="warmup-tag">20-30 sec</span>
+      <button class="icon-btn" onclick="openModal('${esc(s)}','${esc(session.workout)}')">📖</button>
+    </div>`;
+  });
+  html+='</div>';
+
+  // NOTES
+  html+=`<div style="padding:0 16px 32px">
+    <div style="color:#aaa;font-size:10px;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Note sessione</div>
+    <textarea class="notes-area" placeholder="Come è andata? Energia, dolori, sensazioni..."
+      onchange="session.notes=this.value">${esc(session.notes)}</textarea>
+  </div>`;
+
+  document.getElementById('wo-scroll').innerHTML=html;
+}
+
+function toggleEx(i){
+  expandedEx=expandedEx===i?null:i;
+  renderWorkout();
+  setTimeout(()=>{
+    const cards=document.querySelectorAll('.ex-card');
+    if(cards[i])cards[i].scrollIntoView({behavior:'smooth',block:'nearest'});
+  },50);
+}
+
+function updateLog(i,field,val){
+  session.logs[i][field]=val;
+  if(field==='weight'&&BARBELL[session.logs[i].name]){
+    const bar=BARBELL[session.logs[i].name];
+    const el=document.getElementById('tot-'+i);
+    if(el)el.textContent=`Totale: ${bar.w} + ${val||0} = ${bar.w+parseFloat(val||0)} kg`;
+  }
+}
+
+function markSet(i,rest){
+  session.logs[i].doneCount=Math.min(session.logs[i].doneCount+1,session.logs[i].totalSets);
+  renderWorkout();
+  startTimer(rest);
+}
+
+function unmarkSet(i){
+  session.logs[i].doneCount=Math.max(0,session.logs[i].doneCount-1);
+  renderWorkout();
+}
+
+function confirmLeave(){
+  if(confirm('Uscire? I dati non salvati andranno persi.')){
+    session=null;stopTimer();showScreen('home');
+  }
+}
+
+function finishWorkout(){
+  if(!confirm('Salva e termina l\'allenamento?'))return;
+  const ta=document.querySelector('#wo-scroll textarea');
+  if(ta)session.notes=ta.value;
+  appData.sessions.push({...session,finished:new Date().toISOString()});
+  saveAll();session=null;stopTimer();showScreen('home');
+}
+
+function getSuggestion(woName,exName){
+  const prog=appData.sessions.filter(s=>s.workout===woName).map(s=>{
+    const l=s.logs?.find(x=>x.name===exName);
+    if(!l?.weight)return null;
+    return parseFloat(l.weight)||0;
+  }).filter(x=>x!==null);
+  if(prog.length<2)return null;
+  const last=prog[prog.length-1],prev=prog[prog.length-2];
+  if(last>prev)return`📈 +${(last-prev).toFixed(1)} kg rispetto all'ultima volta!`;
+  if(last===prev)return`➡️ Stesso carico (${last} kg). Punta a qualche rep in più!`;
+  return`⚠️ Carico sceso da ${prev} a ${last} kg. Controlla il recupero.`;
+}
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+function startTimer(secs){
+  stopTimer();timerTotal=secs;timerRemaining=secs;
+  document.getElementById('timer-overlay').style.display='flex';
+  updateTimerUI();
+  timerInterval=setInterval(()=>{
+    timerRemaining--;
+    if(timerRemaining<=0){stopTimer();return;}
+    updateTimerUI();
+  },1000);
+}
+function updateTimerUI(){
+  document.getElementById('timer-display').textContent=fmtTime(timerRemaining);
+  const circ=2*Math.PI*60;
+  document.getElementById('timer-circle').style.strokeDashoffset=circ*(timerRemaining/timerTotal);
+}
+function stopTimer(){
+  clearInterval(timerInterval);timerInterval=null;
+  document.getElementById('timer-overlay').style.display='none';
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(name,woName){
+  const ex=EXEC[name];
+  const link=getLink(name);
+  const wo=woName?WORKOUTS[woName]:null;
+  const color=wo?.color||'#FF6B35';
+  document.getElementById('modal-title').textContent=name;
+  document.getElementById('modal-title').style.color=color;
+  const mwBtn=document.getElementById('modal-mw-btn');
+  if(link){mwBtn.href=link;mwBtn.style.background=color;mwBtn.style.display='flex';}
+  else mwBtn.style.display='none';
+  if(ex){
+    document.getElementById('modal-target').textContent=ex.target;
+    document.getElementById('modal-desc').textContent=ex.desc;
+    document.getElementById('modal-desc').style.display='block';
+    if(ex.tips?.length){
+      document.getElementById('modal-tips-title').textContent='Consigli chiave';
+      document.getElementById('modal-tips-title').style.color=color;
+      document.getElementById('modal-tips').innerHTML=ex.tips.map(t=>`<div class="tip">• ${esc(t)}</div>`).join('');
+      document.getElementById('modal-tips-box').style.display='block';
+    } else document.getElementById('modal-tips-box').style.display='none';
+  } else {
+    document.getElementById('modal-desc').style.display='none';
+    document.getElementById('modal-tips-box').style.display='none';
+  }
+  document.getElementById('exec-modal').style.display='flex';
+}
+function closeModal(){document.getElementById('exec-modal').style.display='none';}
+
+// ── HISTORY ───────────────────────────────────────────────────────────────────
+function renderHistory(){
+  const sessions=[...appData.sessions].reverse();
+  if(!sessions.length){
+    document.getElementById('history-list').innerHTML='<div style="text-align:center;color:#bbb;padding:60px 20px;line-height:2">Nessuna sessione ancora.<br>Inizia il primo allenamento!</div>';
+    return;
+  }
+  let html='';
+  sessions.forEach(s=>{
+    const w=WORKOUTS[s.workout];
+    const done=s.logs?.reduce((a,l)=>a+(l.doneCount||0),0)||0;
+    const tot=s.logs?.reduce((a,l)=>a+(l.totalSets||0),0)||0;
+    html+=`<div class="hist-card" style="border-left:4px solid ${w?.color||'#ddd'}">
+      <div style="display:flex;justify-content:space-between">
+        <div>
+          <div style="font-weight:700;color:${w?.color};font-size:16px">${w?.icon} ${s.workout}</div>
+          <div style="color:#aaa;font-size:13px">${fmtDate(s.date)}</div>
+        </div>
+        <div style="text-align:right;color:#aaa;font-size:13px">${done}/${tot} serie<br><span style="color:#ccc;font-size:12px">${tot>0?Math.round((done/tot)*100):0}%</span></div>
+      </div>`;
+    s.logs?.forEach(log=>{
+      if(!log.weight)return;
+      const bar=BARBELL[log.name];
+      const dw=bar?`${bar.w}+${log.weight}=${bar.w+parseFloat(log.weight||0)} kg`:`${log.weight} kg`;
+      html+=`<div class="hist-row">
+        <span style="color:#555;font-size:14px">${esc(log.name)}</span>
+        <span style="color:#aaa;font-size:13px">${dw} · ${log.reps} reps</span>
+      </div>`;
+    });
+    if(s.notes)html+=`<div style="color:#bbb;font-size:13px;margin-top:8px;font-style:italic">"${esc(s.notes)}"</div>`;
+    html+='</div>';
+  });
+  document.getElementById('history-list').innerHTML=html;
+}
+
+// ── PROGRESS ──────────────────────────────────────────────────────────────────
+function renderProgress(){
+  const wNames=Object.keys(WORKOUTS);
+  let tabs='';
+  wNames.forEach(n=>{
+    const w=WORKOUTS[n];
+    const active=n===currentProgressWO;
+    tabs+=`<button class="tab-btn" onclick="setProgressWO('${n}')"
+      style="background:${active?w.color:'#fff'};color:${active?'#fff':'#888'};border:1px solid ${active?w.color:'#ebebeb'}">${n}</button>`;
+  });
+  document.getElementById('progress-tabs').innerHTML=tabs;
+  const wo=WORKOUTS[currentProgressWO];
+  let html='';
+  wo.exercises.forEach(ex=>{
+    const prog=appData.sessions.filter(s=>s.workout===currentProgressWO).map(s=>{
+      const l=s.logs?.find(x=>x.name===ex.name);
+      if(!l?.weight)return null;
+      return{date:fmtDate(s.date),w:parseFloat(l.weight)||0};
+    }).filter(Boolean);
+    const bar=BARBELL[ex.name];
+    html+=`<div class="prog-card"><div style="font-weight:700;color:${wo.color};margin-bottom:10px">${esc(ex.name)}</div>`;
+    if(!prog.length){
+      html+=`<div style="color:#bbb;font-size:13px">Nessun dato ancora</div>`;
+    } else {
+      const maxW=Math.max(...prog.map(p=>p.w));
+      html+=`<div class="mini-chart">`;
+      prog.forEach(p=>{
+        const h=maxW>0?Math.max(8,(p.w/maxW)*60):8;
+        const display=bar?`${bar.w}+${p.w}`:p.w;
+        html+=`<div class="bar-col">
+          <div class="bar" style="height:${h}px;background:${wo.color}"></div>
+          <div class="bar-label">${display}</div>
+          <div class="bar-date">${p.date.split(' ')[0]}</div>
+        </div>`;
+      });
+      html+='</div>';
+      if(prog.length>=2){
+        const diff=prog[prog.length-1].w-prog[0].w;
+        const col=diff>0?'#2a8a2a':diff<0?'#cc4444':'#888';
+        html+=`<div style="margin-top:10px;color:${col};font-size:13px">${diff>0?'📈':diff<0?'📉':'➡️'} ${diff>0?'+':''}${diff.toFixed(1)} kg dalla prima sessione</div>`;
+      }
+    }
+    html+='</div>';
+  });
+  document.getElementById('progress-content').innerHTML=html;
+}
+function setProgressWO(name){currentProgressWO=name;renderProgress();}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+function renderSettings(){
+  const allNames=[...new Set([
+    ...Object.values(WORKOUTS).flatMap(w=>w.exercises.map(e=>e.name)),
+    ...Object.values(WORKOUTS).flatMap(w=>w.warmup.map(e=>e.name)),
+    ...Object.values(WORKOUTS).flatMap(w=>w.core.map(e=>e.name)),
+    ...Object.values(WORKOUTS).flatMap(w=>w.stretch),
+  ])];
+  let html='';
+  allNames.forEach(name=>{
+    const current=getLink(name)||'';
+    const safeId='link-'+name.replace(/[^a-zA-Z0-9]/g,'-');
+    html+=`<div class="settings-item">
+      <div class="settings-label">${esc(name)}</div>
+      <input class="settings-input" value="${esc(current)}" placeholder="https://musclewiki.com/exercise/..." id="${safeId}">
+      <button class="settings-save" onclick="saveLink('${esc(name)}')">Salva</button>
+    </div>`;
+  });
+  document.getElementById('link-editor').innerHTML=html;
+}
+function saveLink(name){
+  const id='link-'+name.replace(/[^a-zA-Z0-9]/g,'-');
+  const el=document.getElementById(id);if(!el)return;
+  const val=el.value.trim();
+  if(val)customLinks[name]=val;else delete customLinks[name];
+  saveLinks();alert('✅ Link salvato per: '+name);
+}
+
+// ── EXPORT / IMPORT ───────────────────────────────────────────────────────────
+function exportData(){
+  const blob=new Blob([JSON.stringify(appData,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='ironlog_backup_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();URL.revokeObjectURL(url);
+}
+function importData(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const parsed=JSON.parse(e.target.result);
+      if(parsed.sessions){
+        if(confirm(`Importare ${parsed.sessions.length} sessioni? I dati attuali verranno sostituiti.`)){
+          appData=parsed;saveAll();alert('✅ Dati importati con successo!');
+        }
+      } else alert('❌ File non valido.');
+    }catch{alert('❌ Errore nella lettura del file.');}
+  };
+  reader.readAsText(file);
+}
+
+// ── GOOGLE DRIVE ──────────────────────────────────────────────────────────────
+function connectDrive(){
+  const clientId=document.getElementById('client-id-input').value.trim();
+  if(!clientId){alert('Incolla prima il tuo Client ID Google.');return;}
+  localStorage.setItem('drive_client_id',clientId);
+  const scope='https://www.googleapis.com/auth/drive.file';
+  const redirectUri=window.location.href.split('?')[0].split('#')[0];
+  window.location.href=`https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}`;
+}
+function handleOAuthCallback(){
+  const hash=window.location.hash;
+  if(!hash.includes('access_token'))return;
+  const params=new URLSearchParams(hash.substring(1));
+  const token=params.get('access_token');
+  if(token){
+    driveToken=token;localStorage.setItem('drive_token',token);
+    window.location.hash='';
+    document.getElementById('drive-status').textContent='✅ Connesso a Google Drive';
+    alert('✅ Google Drive connesso!');
+  }
+}
+async function backupToDrive(){
+  if(!driveToken){alert('Prima connettiti a Google Drive.');return;}
+  const json=JSON.stringify(appData,null,2);
+  try{
+    if(driveFileId){
+      const res=await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=media`,{
+        method:'PATCH',headers:{'Authorization':`Bearer ${driveToken}`,'Content-Type':'application/json'},body:json,
+      });
+      if(res.ok){alert('✅ Backup aggiornato su Google Drive!');return;}
+    }
+    const meta=await fetch('https://www.googleapis.com/drive/v3/files',{
+      method:'POST',headers:{'Authorization':`Bearer ${driveToken}`,'Content-Type':'application/json'},
+      body:JSON.stringify({name:'ironlog_backup.json',mimeType:'application/json'}),
+    });
+    const metaJson=await meta.json();
+    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${metaJson.id}?uploadType=media`,{
+      method:'PATCH',headers:{'Authorization':`Bearer ${driveToken}`,'Content-Type':'application/json'},body:json,
+    });
+    driveFileId=metaJson.id;localStorage.setItem('drive_file_id',driveFileId);
+    alert('✅ Backup salvato su Google Drive!');
+  }catch(e){
+    alert('❌ Errore: '+e.message+'\n\nIl token potrebbe essere scaduto. Riconnettiti.');
+    driveToken=null;localStorage.removeItem('drive_token');
+    document.getElementById('drive-status').textContent='Non connesso (token scaduto)';
+  }
+}
+async function restoreFromDrive(){
+  if(!driveToken){alert('Prima connettiti a Google Drive.');return;}
+  if(!driveFileId){alert('Nessun backup trovato su Drive.');return;}
+  try{
+    const res=await fetch(`https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`,{
+      headers:{'Authorization':`Bearer ${driveToken}`},
+    });
+    const data=await res.json();
+    if(data.sessions){
+      if(confirm(`Ripristinare ${data.sessions.length} sessioni da Drive?`)){
+        appData=data;saveAll();alert('✅ Dati ripristinati!');renderHome();
+      }
+    } else alert('❌ File non valido su Drive.');
+  }catch(e){alert('❌ Errore ripristino: '+e.message);}
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadAll();
+handleOAuthCallback();
+renderHome();
+</script>
+</body>
+</html>
